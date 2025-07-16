@@ -1,0 +1,10 @@
+s1_token: '[string] Represent the S1 API key used for authentication'
+s1_api: '[string] Represent the S1 API url. Example: https://euce1-777.sentinelone.net/web/api/v2.1/'
+s1_account_id: "[string] Represent the Account ID of the SentinelOne tenant. For some request is required. Example: 5679600783759357458
+debug: '[boolean] Enable/Disable logging'
+creator_mail: '[string] User email which will be used to identify the creator of an IOC'
+sha1_retention: '[int] Days of retention for this type of IOC'
+url_retention: '[int] Days of retention for this type of IOC'
+dns_retention: '[int] Days of retention for this type of IOC'
+ip_retention: '[int] Days of retention for this type of IOC'
+ioc_tag: '[string] Allow to add a TAG automatically added to the iocs' name and description. Example [ORGANIZATION NAME]'

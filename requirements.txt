@@ -1,0 +1,4 @@
+customtkinter==5.2.2
+PyYAML==6.0.2
+requests==2.32.4
+validators==0.35.0
