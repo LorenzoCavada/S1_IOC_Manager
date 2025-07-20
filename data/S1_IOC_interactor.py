@@ -7,7 +7,7 @@ from utils.log_handler import logger
 from .db_handler import IOC_DB
 
 
-def __ioc_retriver():
+def __get_s1_ioc():
 
     # This function is used to refresh the DB. Emptying it before starting
 
@@ -71,7 +71,7 @@ def __ioc_retriver():
 
     return ioc_list
 
-def __ioc_filtered_retriver(value=None, filter_type="Value"):
+def __get_db_ioc_by_filter(value=None, filter_type="Value"):
     logger.print_log(f"[INFO] Sending the get request to the internal DB filtered for [{value}], filter type set to [{filter_type}].")
     ioc_list = []
     try:
@@ -102,7 +102,7 @@ def __ioc_filtered_retriver(value=None, filter_type="Value"):
     ioc_list.append(ioc)
     return ioc_list    
 
-def __s1_ioc_by_value_retriver(value):
+def __get_s1_ioc_by_value(value):
     headers = {'Authorization': f'ApiToken {config.s1_token}'}   
     logger.print_log(f"[INFO] Sending the get request for value [{value}] to SentinelOne.")
 
@@ -127,8 +127,7 @@ def __s1_ioc_by_value_retriver(value):
         logger.print_log(f"[ERROR] Error while trying to donwload the IOC list. Received status code [{res.status_code}]. Returning None.")    
         return None
 
-
-def __s1_ioc_by_value_remover(value):
+def __delete_s1_ioc_by_value(value):
     headers = {'Authorization': f'ApiToken {config.s1_token}'}   
     logger.print_log(f"[INFO] Sending the delete request for value [{value}] to SentinelOne.")
 
@@ -155,19 +154,7 @@ def __s1_ioc_by_value_remover(value):
         logger.print_log(f"[ERROR] Error while trying to delete the IOC [{value}]. Received status code [{res.status_code}].")    
         return False
 
-def get_s1_ioc():
-    return __ioc_retriver()
-
-def get_s1_filtered_ioc(value, filter_type):
-    return __ioc_filtered_retriver(value, filter_type)
-
-def get_s1_ioc_by_value(value):
-    return __s1_ioc_by_value_retriver(value)
-
-def delete_s1_ioc_by_value(value):
-    return __s1_ioc_by_value_remover(value)
-
-def upload_ioc_to_s1(ioc_value, ioc_type, retention_days, name, description):
+def __post_s1_upload_ioc(ioc_value, ioc_type, retention_days, name, description):
     headers = {'Authorization': f'ApiToken {config.s1_token}'}
     logger.print_log("[INFO] Sending POST request to the SentinelOne API.")
 
@@ -204,3 +191,18 @@ def upload_ioc_to_s1(ioc_value, ioc_type, retention_days, name, description):
             return res
     except:
         return None
+
+def get_s1_ioc():
+    return __get_s1_ioc()
+
+def get_s1_filtered_ioc(value, filter_type):
+    return __get_db_ioc_by_filter(value, filter_type)
+
+def get_s1_ioc_by_value(value):
+    return __get_s1_ioc_by_value(value)
+
+def delete_s1_ioc_by_value(value):
+    return __delete_s1_ioc_by_value(value)
+
+def upload_ioc_to_s1(ioc_value, ioc_type, retention_days, name, description):
+    return __post_s1_upload_ioc( ioc_type, retention_days, name, description)

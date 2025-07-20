@@ -41,6 +41,9 @@ The tool features an intuitive table-based interface displaying all available IO
   - **Description**  
   Wildcards (`%`) are supported for partial matches (e.g. `%malware%`)
 
+- 📤 **Export capabilities**
+  Exports all visible IOCs to a CSV file. Only the currently displayed IOCs will be included. The file `IOC_Manager_export.csv` will be created in the same directory as the main execution file.
+
 - 🪵 **Extensive Logging**  
   Activity logs are saved to:
   - The console, and  
@@ -58,6 +61,8 @@ To install the required packages:
 ```bash
 pip install -r requirements.txt
 ```
+
+From SentinelOne's perspective, an API key with View and Manage permissions is required for Threat Intelligence activities.
 
 ---
 
@@ -107,5 +112,5 @@ python3 S1_IOC_manager.py
 
 Only the `.py` version is currently available
 
-Additional features and packaging (e.g., .exe, config GUI, advanced export) are being explored.
+Additional features and packaging (e.g., .exe, config GUI) are being explored.
 
