@@ -7,4 +7,4 @@ sha1_retention: '[int] Days of retention for this type of IOC'
 url_retention: '[int] Days of retention for this type of IOC'
 dns_retention: '[int] Days of retention for this type of IOC'
 ip_retention: '[int] Days of retention for this type of IOC'
-ioc_tag: '[string] Allow to add a TAG automatically added to the iocs' name and description. Example [ORGANIZATION NAME]'
+ioc_tag: "[string] Allow to add a TAG automatically added to the iocs' name and description. Example [ORGANIZATION NAME]"

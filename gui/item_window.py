@@ -51,7 +51,3 @@ class ItemWindow(ctk.CTkToplevel):
                 ErrorDialogBox(self, title="IOC deleted", message=f"The IOC [{data['value']}] has NOT been successfully deleted.").show()
         else:
             logger.print_log(f"[INFO] User don't want to delete IOC with value: [{data['value']}]. Moving on.")
-        
-
-        
-
