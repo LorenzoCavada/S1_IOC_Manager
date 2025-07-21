@@ -5,7 +5,7 @@ import customtkinter as ctk
 
 from gui.viewer_table_frame import ViewerTableFrame
 from gui.uploader_app_window import UploaderAppWindow
-from gui.custom_messagebox import ErrorDialogBox
+from gui.custom_messagebox import ErrorDialogBox, InfoDialogBox
 
 from data import get_s1_ioc, get_s1_filtered_ioc
 
@@ -17,7 +17,7 @@ ctk.set_appearance_mode("light")         # Adapts to user's light/dark mode
 class ViewerAppWindow(ctk.CTk):
     def __init__(self):
         super().__init__()
-        self.title("S1 IOC Viewer v1")
+        self.title("S1 IOC Manager")
 
         screen_width = self.winfo_screenwidth()
         screen_height = self.winfo_screenheight()
@@ -92,6 +92,9 @@ class ViewerAppWindow(ctk.CTk):
                 writer = csv.DictWriter(f, keys)
                 writer.writeheader()
                 writer.writerows(ioc_dump)
+            
+            InfoDialogBox(self, title=f"Export completed", message=f"IOC_Manager_export.csv file created in the home folder.").show()
+
             
             logger.print_log("[INFO] IOC export completed.")
 
