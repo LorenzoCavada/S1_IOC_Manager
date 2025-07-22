@@ -102,9 +102,7 @@ python3 S1_IOC_manager.py
 │
 ├── gui/                            # GUI components for the application
 │   ├── custom_messagebox .py       # Set of message boxes made to match the general UI
-│   ├── item_window.py              # Displays the details of a specific IOC
 │   ├── uploader_app_window.py      # GUI for uploading new IOCs
-│   ├── uploader_app_item.py        # GUI for updating an existing IOC
 │   ├── viewer_app_window.py        # Main application window
 │   └── viewer_table_frame.py       # Builds and manages the IOC table view
 │
