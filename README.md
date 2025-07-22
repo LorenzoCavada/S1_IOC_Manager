@@ -51,6 +51,16 @@ The tool features an intuitive table-based interface displaying all available IO
 
 ---
 
+## 🚧 Known Limitations
+
+Perfection simply doesn't exist.
+
+I haven’t tested the tool with a very large number of IOCs (thousands of them). Some adjustments may be needed for response pagination, but time will tell.
+
+Also, the update/edit feature only allows modifying a subset of the fields provided by the API. Fields such as `campaignNames` or `mitreTactic` cannot (at least for now) be set through the GUI.
+
+---
+
 ## ⚙️ Requirements
 
 - Python **3.7+**
