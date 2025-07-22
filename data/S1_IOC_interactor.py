@@ -205,4 +205,4 @@ def delete_s1_ioc_by_value(value):
     return __delete_s1_ioc_by_value(value)
 
 def upload_ioc_to_s1(ioc_value, ioc_type, retention_days, name, description):
-    return __post_s1_upload_ioc( ioc_type, retention_days, name, description)
+    return __post_s1_upload_ioc(ioc_value, ioc_type, retention_days, name, description)
