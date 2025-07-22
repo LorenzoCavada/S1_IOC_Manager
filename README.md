@@ -5,6 +5,8 @@ This tool provide full IOC management capabilities—allowing users to **view**,
 
 The tool features an intuitive table-based interface displaying all available IOCs. By clicking on any entry, users can quickly access its details or remove it. Additionally, a dedicated upload button launches a guided GUI for creating new IOCs, making IOC management efficient and user-friendly.
 
+<img width="1812" height="682" alt="image" src="https://github.com/user-attachments/assets/2b31f5a5-e812-4260-971d-1d3b89788a34" />
+
 ---
 
 ## 🚀 Features
