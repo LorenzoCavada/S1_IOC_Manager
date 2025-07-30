@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 import customtkinter as ctk
+from dateutil import parser
 from datetime import datetime
 import json
 
@@ -93,9 +94,9 @@ class ViewerTableFrame(tk.Frame):
             self.tree.column(col, anchor=alignment, stretch=stretch, width=width if width else 100)
 
         for row in data:
-            row['creationTime'] = (datetime.strptime(row['creationTime'], "%Y-%m-%dT%H:%M:%S.%fZ")).strftime("%d/%m/%Y %H:%M:%S") if row['creationTime'] else ""
-            row['updatedAt'] = (datetime.strptime(row['updatedAt'], "%Y-%m-%dT%H:%M:%S.%fZ")).strftime("%d/%m/%Y %H:%M:%S") if row['updatedAt'] else ""
-            row['validUntil'] = (datetime.strptime(row['validUntil'], "%Y-%m-%dT%H:%M:%S.%fZ")).strftime("%d/%m/%Y %H:%M:%S") if row['validUntil'] else ""
+            row['creationTime'] = parser.parse(row['creationTime']).strftime("%d/%m/%Y %H:%M:%S") if row.get('creationTime') else ""
+            row['updatedAt']    = parser.parse(row['updatedAt']).strftime("%d/%m/%Y %H:%M:%S")    if row.get('updatedAt') else ""
+            row['validUntil']   = parser.parse(row['validUntil']).strftime("%d/%m/%Y %H:%M:%S")   if row.get('validUntil') else ""
             self.tree.insert("", "end", values=list(row.values()))
 
         self.tree.grid(row=0, column=0, sticky="nsew")
