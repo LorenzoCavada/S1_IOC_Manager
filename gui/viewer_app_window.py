@@ -47,7 +47,7 @@ class ViewerAppWindow(ctk.CTk):
         self.search_entry = ctk.CTkEntry(right_frame, placeholder_text="Filter Value", width=300)
         self.search_entry.grid(row=0, column=0, padx=5)
 
-        self.search_type = ctk.CTkOptionMenu(right_frame, values=["Value", "User", "Name", "Description"], width=130)
+        self.search_type = ctk.CTkOptionMenu(right_frame, values=["Value", "User", "Name", "Description", "Source"], width=130)
         self.search_type.grid(row=0, column=1, padx=5)
 
         self.search_button = ctk.CTkButton(right_frame, text="Search 🔍", width=80, command=self.search_ioc)

@@ -43,6 +43,8 @@ class IOCDB:
             self.cursor.execute("SELECT * FROM iocs WHERE description LIKE ?", (f"{search_value}",))
         elif(filter_type == "User"):
             self.cursor.execute("SELECT * FROM iocs WHERE metadata LIKE ?", (f"{search_value}",))
+        elif(filter_type == "Source"):
+            self.cursor.execute("SELECT * FROM iocs WHERE source LIKE ?", (f"{search_value}",))
 
         return self.cursor.fetchall()
     
