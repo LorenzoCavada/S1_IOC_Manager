@@ -12,7 +12,7 @@ from gui.custom_messagebox import YesNoDialogBox, InfoDialogBox, ErrorDialogBox
 from data import get_s1_ioc_by_value, delete_s1_ioc_by_value
 
 colums_settings = {
-    'num': {'allignment': tk.CENTER, 'size': 40},
+    'num': {'allignment': tk.CENTER, 'size': 60},
     'name': {'allignment': tk.W},
     'description': {'allignment': tk.W},
     'type': {'allignment': tk.CENTER, 'size': 50},
@@ -73,6 +73,8 @@ class ViewerTableFrame(tk.Frame):
     def __init__(self, parent, data):
         super().__init__(parent)
         self.tree = None
+        self.sort_state = {}   # Track sort order for each column
+        self.original_headings = {}  # Keep original column names
         self.build_table(data)
 
         # Let this frame expand with its parent
@@ -85,12 +87,15 @@ class ViewerTableFrame(tk.Frame):
         
         for col in data[0].keys():
             heading = col
+            self.original_headings[col] = heading  # store original name
             alignment = colums_settings[col].get("allignment", tk.CENTER)
             width = colums_settings[col].get("size", None)
 
             stretch = width is None
 
-            self.tree.heading(col, text=heading)
+            # Bind sorting command on column header
+            self.tree.heading(col, text=heading,
+                              command=lambda c=col: self.sort_column(c, False))
             self.tree.column(col, anchor=alignment, stretch=stretch, width=width if width else 100)
 
         for row in data:
@@ -102,18 +107,55 @@ class ViewerTableFrame(tk.Frame):
         self.tree.grid(row=0, column=0, sticky="nsew")
         self.tree.bind("<Double-1>", self.row_double_click)
 
+    def sort_column(self, col, reverse):
+        """Sort a column and update header indicator."""
+        items = [(self.tree.set(k, col), k) for k in self.tree.get_children('')]
+
+        def try_parse(val):
+            """Try to parse into int, float, datetime, else string."""
+            from datetime import datetime
+            for parse_fn in (int, float):
+                try:
+                    return parse_fn(val)
+                except Exception:
+                    pass
+            try:
+                return datetime.strptime(val, "%d/%m/%Y %H:%M:%S")
+            except Exception:
+                return val.lower()  # fallback to string
+
+        # Sort
+        items.sort(key=lambda t: try_parse(t[0]), reverse=reverse)
+
+        # Reorder
+        for index, (_, k) in enumerate(items):
+            self.tree.move(k, '', index)
+
+        # Reset all headers
+        for c in self.original_headings:
+            self.tree.heading(c, text=self.original_headings[c],
+                              command=lambda colname=c: self.sort_column(colname, False))
+
+        # Add arrow to sorted column
+        arrow = "▼" if reverse else "▲"
+        self.tree.heading(col, text=f"{self.original_headings[col]} {arrow}",
+                          command=lambda: self.sort_column(col, not reverse))
+
+        # Save state
+        self.sort_state[col] = not reverse
+
     def row_double_click(self, event):        
-        item_id = self.tree.identify_row(event.y)  # Get the item ID under mouse
+        item_id = self.tree.identify_row(event.y)
         if item_id:
             value = self.tree.item(item_id, "values")
             logger.print_log(f"[INFO] Double click on item [{value[0]}] detected. Showing detailed pop up window.")
 
             ioc_data = get_s1_ioc_by_value(value[4])            
-
-            if(ioc_data != None):
+            if ioc_data is not None:
                 ioc_data = json.dumps(ioc_data, indent=2)
                 item_window = ItemWindow(self, value=value, data=ioc_data)
                 item_window.show()
             else:
                 logger.print_log(f"[WARNING] IOC at row number [{value[0]}] Not found on the console, maybe a table refresh is needed.")
-                ErrorDialogBox(self, title="IOC not found", message=f"IOC at row number {value[0]} not found on the console, maybe a table refresh is needed?").show()
+                ErrorDialogBox(self, title="IOC not found",
+                               message=f"IOC at row number {value[0]} not found on the console, maybe a table refresh is needed?").show()

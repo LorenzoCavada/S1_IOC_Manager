@@ -1,4 +1,4 @@
-import requests
+import requests, traceback
 
 from datetime import datetime, timedelta
 
@@ -19,12 +19,26 @@ def __get_s1_ioc():
 
     ioc_list = []
     try:
-        res = requests.get(f"{config.s1_api}threat-intelligence/iocs", headers=headers)
-    except:
-        logger.print_log(f"[ERROR] Exception while trying to donwload the IOC list.")    
+        res = requests.get(f"{config.s1_api}threat-intelligence/iocs?limit=1000", headers=headers)
+        res_data = []
+
+        i = 1
+        while True:
+            data = res.json()
+            res_data.extend(data.get("data", []))  
+            next_cursor = data.get("pagination", {}).get("nextCursor")
+
+            if not next_cursor:
+                break
+
+            logger.print_log(f"[INFO] More than 1000 IOCs received. Asking for next page. Page number: {i}.")
+            
+            res = requests.get(f"{config.s1_api}threat-intelligence/iocs?limit=1000", headers=headers, params={"cursor": next_cursor})
+
+    except Exception:
+        print(traceback.format_exc())  
 
     if res.status_code == 200:
-        res_data = (res.json())["data"]
         logger.print_log(f"[SUCCESS] Status code [200] received. {len(res_data)} IOCs found.")
 
         if(len(res_data) > 0):
