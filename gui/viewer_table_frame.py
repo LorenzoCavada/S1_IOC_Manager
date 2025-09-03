@@ -83,8 +83,11 @@ class ViewerTableFrame(tk.Frame):
 
     def build_table(self, data):
         logger.print_log("[INFO] Building the IOC table.")
+
+        # Create Treeview
         self.tree = ttk.Treeview(self, columns=list(data[0].keys()), show="headings")
-        
+
+        # Configure columns and headings
         for col in data[0].keys():
             heading = col
             self.original_headings[col] = heading  # store original name
@@ -94,17 +97,33 @@ class ViewerTableFrame(tk.Frame):
             stretch = width is None
 
             # Bind sorting command on column header
-            self.tree.heading(col, text=heading,
-                              command=lambda c=col: self.sort_column(c, False))
+            self.tree.heading(col, text=heading, command=lambda c=col: self.sort_column(c, False))
             self.tree.column(col, anchor=alignment, stretch=stretch, width=width if width else 100)
 
+        # Insert rows
         for row in data:
             row['creationTime'] = parser.parse(row['creationTime']).strftime("%d/%m/%Y %H:%M:%S") if row.get('creationTime') else ""
             row['updatedAt']    = parser.parse(row['updatedAt']).strftime("%d/%m/%Y %H:%M:%S")    if row.get('updatedAt') else ""
             row['validUntil']   = parser.parse(row['validUntil']).strftime("%d/%m/%Y %H:%M:%S")   if row.get('validUntil') else ""
             self.tree.insert("", "end", values=list(row.values()))
 
+        # Create scrollbars
+        vsb = ttk.Scrollbar(self, orient="vertical", command=self.tree.yview)
+        hsb = ttk.Scrollbar(self, orient="horizontal", command=self.tree.xview)
+
+        # Attach scrollbars to tree
+        self.tree.configure(yscrollcommand=vsb.set, xscrollcommand=hsb.set)
+
+        # Layout with grid
         self.tree.grid(row=0, column=0, sticky="nsew")
+        vsb.grid(row=0, column=1, sticky="ns")
+        hsb.grid(row=1, column=0, sticky="ew")
+
+        # Make frame expandable
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+
+        # Bind double click
         self.tree.bind("<Double-1>", self.row_double_click)
 
     def sort_column(self, col, reverse):
