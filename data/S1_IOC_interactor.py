@@ -19,7 +19,11 @@ def __get_s1_ioc():
 
     ioc_list = []
     try:
-        res = requests.get(f"{config.s1_api}threat-intelligence/iocs?limit=1000", headers=headers)
+        params = {
+            "limit": 1000,
+            "creationTime__gt": (datetime.now() - timedelta(hours=24)).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+        }
+        res = requests.get(f"{config.s1_api}threat-intelligence/iocs?limit=1000", headers=headers, params=params)
         res_data = []
 
         i = 1
