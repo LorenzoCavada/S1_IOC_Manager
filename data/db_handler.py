@@ -29,6 +29,10 @@ class IOCDB:
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (name, description, ioc_type, value, metadata, source, creationTime, updatedAt, validUntil))
 
+    def search_ioc(self, value):
+        self.cursor.execute("""SELECT * FROM iocs WHERE value = ?""", (value,))
+        return self.cursor.fetchall()
+
     def fetch_all(self):
         self.cursor.execute("SELECT * FROM iocs")
         return self.cursor.fetchall()

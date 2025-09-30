@@ -93,6 +93,24 @@ def __get_db_ioc_by_filter(value=None, filter_type="Value"):
     logger.print_log(f"[INFO] Sending the get request to the internal DB filtered for [{value}], filter type set to [{filter_type}].")
     ioc_list = []
     try:
+        online_search = __get_s1_ioc_by_value(value)
+
+        for ioc in online_search:
+            if value in IOC_DB.search_ioc(value):
+                logger.print_log(f"[INFO] IOC [{value}] already present in the internal DB. No need to insert it again.")
+            else:
+                logger.print_log(f"[INFO] IOC [{value}] not present in the internal DB. Inserting it.")
+                IOC_DB.insert_ioc(name = ioc['name'], 
+                                        description = ioc['description'], 
+                                        ioc_type = ioc['type'],
+                                        value = ioc['value'],
+                                        metadata = ioc['metadata'],
+                                        source =  ioc['source'],
+                                        creationTime = ioc['creationTime'],
+                                        updatedAt = ioc['updatedAt'],
+                                        validUntil = ioc['validUntil']
+                )
+                
         ioc_list = IOC_DB.fetch_filtered(value, filter_type)
 
         logger.print_log(f"[SUCCESS] IOC retrieved from the database. {len(ioc_list)} IOCs Found")
