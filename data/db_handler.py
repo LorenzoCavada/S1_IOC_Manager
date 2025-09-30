@@ -30,8 +30,8 @@ class IOCDB:
         """, (name, description, ioc_type, value, metadata, source, creationTime, updatedAt, validUntil))
 
     def search_ioc(self, value):
-        self.cursor.execute("""SELECT * FROM iocs WHERE value = ?""", (value,))
-        return self.cursor.fetchall()
+        self.cursor.execute("SELECT 1 FROM iocs WHERE value = ? LIMIT 1", (value,))
+        return self.cursor.fetchone() is not None
 
     def fetch_all(self):
         self.cursor.execute("SELECT * FROM iocs")

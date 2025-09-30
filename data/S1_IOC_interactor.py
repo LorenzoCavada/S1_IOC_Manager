@@ -11,7 +11,7 @@ def __get_s1_ioc():
 
     # This function is used to refresh the DB. Emptying it before starting
 
-    IOC_DB.delete_all()
+    #IOC_DB.delete_all()
 
     # Preparing the headers for the GET request
     headers = {'Authorization': f'ApiToken {config.s1_token}'}   
@@ -49,15 +49,16 @@ def __get_s1_ioc():
             logger.print_log("[INFO] At least one IOC found. Populating the database with the IOCs.")
             try:
                 for ioc in res_data:
-                    IOC_DB.insert_ioc(name = ioc['name'], 
-                                    description = ioc['description'], 
-                                    ioc_type = ioc['type'],
-                                    value = ioc['value'],
-                                    metadata = ioc['metadata'],
-                                    source =  ioc['source'],
-                                    creationTime = ioc['creationTime'],
-                                    updatedAt = ioc['updatedAt'],
-                                    validUntil = ioc['validUntil']
+                    if not IOC_DB.search_ioc(ioc['value']):
+                        IOC_DB.insert_ioc(name = ioc['name'], 
+                                        description = ioc['description'], 
+                                        ioc_type = ioc['type'],
+                                        value = ioc['value'],
+                                        metadata = ioc['metadata'],
+                                        source =  ioc['source'],
+                                        creationTime = ioc['creationTime'],
+                                        updatedAt = ioc['updatedAt'],
+                                        validUntil = ioc['validUntil']
                     )
             except:
                 logger.print_log(f"[ERROR] Exception while trying to populate the DB.")
@@ -96,7 +97,7 @@ def __get_db_ioc_by_filter(value=None, filter_type="Value"):
         online_search = __get_s1_ioc_by_value(value)
 
         for ioc in online_search:
-            if value in IOC_DB.search_ioc(value):
+            if IOC_DB.search_ioc(ioc['value']):
                 logger.print_log(f"[INFO] IOC [{value}] already present in the internal DB. No need to insert it again.")
             else:
                 logger.print_log(f"[INFO] IOC [{value}] not present in the internal DB. Inserting it.")
@@ -152,10 +153,10 @@ def __get_s1_ioc_by_value(value):
         logger.print_log(f"[SUCCESS] Status code [200] received for IOC [{value}].")
 
         if(len(res_data) == 1):
-            return res_data[0]
+            return res_data
         elif(len(res_data) > 1):
             logger.print_log(f"[WARNING] Found multiple entry for value [{value}]. Received [{len(res_data)}] IOCs. Returning only the first one.")
-            return res_data[0]
+            return res_data
         else:
             logger.print_log(f"[INFO] IOC [{value}] Not found. Returning None.")
             return None
