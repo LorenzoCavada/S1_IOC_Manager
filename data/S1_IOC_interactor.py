@@ -94,7 +94,25 @@ def __get_db_ioc_by_filter(value=None, filter_type="Value"):
     logger.print_log(f"[INFO] Sending the get request to the internal DB filtered for [{value}], filter type set to [{filter_type}].")
     ioc_list = []
     try:
-        online_search = __get_s1_ioc_by_value(value)
+        ioc_list = IOC_DB.fetch_filtered(value, filter_type)
+        if(len(ioc_list) > 0):
+            logger.print_log(f"[SUCCESS] IOC retrieved from the database. {len(ioc_list)} IOCs Found")
+        elif(filter_type == "Value"): # Value is supposed to be unique, so if we don't find it in the DB we try to get it from S1
+            logger.print_log(f"[INFO] Zero IOC retrieved from the internal DB filtered for [{value}]. Trying to get it from SentinelOne.")
+            online_search = __get_s1_ioc_by_value(value)
+        
+        if(filter_type =="Name"):
+            logger.print_log(f"[INFO] Retrieving IOC from the internal DB filtered for name [{value}].")
+            online_search = __get_s1_ioc_by_name(value)
+        elif(filter_type == "Description"):
+            logger.print_log(f"[INFO] Retrieving IOC from the internal DB filtered for description [{value}].")
+            online_search = __get_s1_ioc_by_description(value)
+        elif(filter_type == "User"):
+            logger.print_log(f"[INFO] Retrieving IOC from the internal DB filtered for creator [{value}].")
+            online_search = __get_s1_ioc_by_creator(value)
+        elif(filter_type == "Source"):
+            logger.print_log(f"[INFO] Retrieving IOC from the internal DB filtered for source [{value}].")
+            online_search = __get_s1_ioc_by_source(value)
 
         for ioc in online_search:
             if IOC_DB.search_ioc(ioc['value']):
@@ -111,16 +129,16 @@ def __get_db_ioc_by_filter(value=None, filter_type="Value"):
                                         updatedAt = ioc['updatedAt'],
                                         validUntil = ioc['validUntil']
                 )
-                
-        ioc_list = IOC_DB.fetch_filtered(value, filter_type)
 
-        logger.print_log(f"[SUCCESS] IOC retrieved from the database. {len(ioc_list)} IOCs Found")
-
+        # Fetch again the IOC from the DB to return it
+        ioc_list = IOC_DB.fetch_filtered(value, filter_type)  
+        
         if (len(ioc_list) > 0):
             return [dict(ioc) for ioc in ioc_list]
         else:
             logger.print_log(f"[WARNING] Zero IOC retrieved. Creating an empty IOC to allow table generation.")
-    except:
+    except Exception as e:
+        logger.print_log(f"[ERROR] Exception while trying to get the IOC from the internal DB filtered for [{value}]. Exception: {e}")
         logger.print_log(f"[ERROR] Error while trying to get the IOC from the internal DB filtered for [{value}]. Creating an empty IOC to allow table generation.")
 
     ioc = {
@@ -159,6 +177,106 @@ def __get_s1_ioc_by_value(value):
             return res_data
         else:
             logger.print_log(f"[INFO] IOC [{value}] Not found. Returning None.")
+            return None
+    else:
+        logger.print_log(f"[ERROR] Error while trying to donwload the IOC list. Received status code [{res.status_code}]. Returning None.")    
+        return None
+
+def __get_s1_ioc_by_name(name):
+    headers = {'Authorization': f'ApiToken {config.s1_token}'}   
+    logger.print_log(f"[INFO] Sending the get request for name [{name}] to SentinelOne.")
+
+    try:
+        res = requests.get(f"{config.s1_api}threat-intelligence/iocs?name__contains={name}", headers=headers)
+    except:
+        logger.print_log(f"[ERROR] Exception while trying to donwload the IOC list.")    
+
+    if res.status_code == 200:
+        res_data = (res.json())["data"]
+        logger.print_log(f"[SUCCESS] Status code [200] received for name [{name}].")
+
+        if(len(res_data) == 1):
+            return res_data
+        elif(len(res_data) > 1):
+            logger.print_log(f"[SUCCESS] Found multiple entry for name [{name}]. Received [{len(res_data)}] IOCs.")
+            return res_data
+        else:
+            logger.print_log(f"[INFO] Name [{name}] Not found. Returning None.")
+            return None
+    else:
+        logger.print_log(f"[ERROR] Error while trying to donwload the IOC list. Received status code [{res.status_code}]. Returning None.")    
+        return None
+    
+def __get_s1_ioc_by_description(description):
+    headers = {'Authorization': f'ApiToken {config.s1_token}'}   
+    logger.print_log(f"[INFO] Sending the get request for description [{description}] to SentinelOne.")
+
+    try:
+        res = requests.get(f"{config.s1_api}threat-intelligence/iocs?description__contains={description}", headers=headers)
+    except:
+        logger.print_log(f"[ERROR] Exception while trying to donwload the IOC list.")    
+
+    if res.status_code == 200:
+        res_data = (res.json())["data"]
+        logger.print_log(f"[SUCCESS] Status code [200] received for description [{description}].")
+
+        if(len(res_data) == 1):
+            return res_data
+        elif(len(res_data) > 1):
+            logger.print_log(f"[SUCCESS] Found multiple entry for description [{description}]. Received [{len(res_data)}] IOCs.")
+            return res_data
+        else:
+            logger.print_log(f"[INFO] Description [{description}] Not found. Returning None.")
+            return None
+    else:
+        logger.print_log(f"[ERROR] Error while trying to donwload the IOC list. Received status code [{res.status_code}]. Returning None.")    
+        return None
+    
+def __get_s1_ioc_by_creator(creator):
+    headers = {'Authorization': f'ApiToken {config.s1_token}'}   
+    logger.print_log(f"[INFO] Sending the get request for creator [{creator}] to SentinelOne.")
+
+    try:
+        res = requests.get(f"{config.s1_api}threat-intelligence/iocs?creator__contains={creator}", headers=headers)
+    except:
+        logger.print_log(f"[ERROR] Exception while trying to donwload the IOC list.")    
+
+    if res.status_code == 200:
+        res_data = (res.json())["data"]
+        logger.print_log(f"[SUCCESS] Status code [200] received for creator [{creator}].")
+
+        if(len(res_data) == 1):
+            return res_data
+        elif(len(res_data) > 1):
+            logger.print_log(f"[SUCCESS] Found multiple entry for creator [{creator}]. Received [{len(res_data)}] IOCs.")
+            return res_data
+        else:
+            logger.print_log(f"[INFO] Creator [{creator}] Not found. Returning None.")
+            return None
+    else:
+        logger.print_log(f"[ERROR] Error while trying to donwload the IOC list. Received status code [{res.status_code}]. Returning None.")    
+        return None
+
+def __get_s1_ioc_by_source(source):
+    headers = {'Authorization': f'ApiToken {config.s1_token}'}   
+    logger.print_log(f"[INFO] Sending the get request for source [{source}] to SentinelOne.")
+
+    try:
+        res = requests.get(f"{config.s1_api}threat-intelligence/iocs?source__contains={source}", headers=headers)
+    except:
+        logger.print_log(f"[ERROR] Exception while trying to donwload the IOC list.")    
+
+    if res.status_code == 200:
+        res_data = (res.json())["data"]
+        logger.print_log(f"[SUCCESS] Status code [200] received for source [{source}].")
+
+        if(len(res_data) == 1):
+            return res_data
+        elif(len(res_data) > 1):
+            logger.print_log(f"[SUCCESS] Found multiple entry for source [{source}]. Received [{len(res_data)}] IOCs.")
+            return res_data
+        else:
+            logger.print_log(f"[INFO] Source [{source}] Not found. Returning None.")
             return None
     else:
         logger.print_log(f"[ERROR] Error while trying to donwload the IOC list. Received status code [{res.status_code}]. Returning None.")    

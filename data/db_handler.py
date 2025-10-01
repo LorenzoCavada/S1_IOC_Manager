@@ -42,13 +42,13 @@ class IOCDB:
         if(filter_type == "Value"):
             self.cursor.execute("SELECT * FROM iocs WHERE value LIKE ?", (f"{search_value}",))
         elif(filter_type =="Name"):
-            self.cursor.execute("SELECT * FROM iocs WHERE name LIKE ?", (f"{search_value}",))
+            self.cursor.execute("SELECT * FROM iocs WHERE name LIKE ?", (f"%{search_value}%",))
         elif(filter_type == "Description"):
-            self.cursor.execute("SELECT * FROM iocs WHERE description LIKE ?", (f"{search_value}",))
+            self.cursor.execute("SELECT * FROM iocs WHERE description LIKE ?", (f"%{search_value}%",))
         elif(filter_type == "User"):
-            self.cursor.execute("SELECT * FROM iocs WHERE metadata LIKE ?", (f"{search_value}",))
+            self.cursor.execute("SELECT * FROM iocs WHERE metadata LIKE ?", (f"%{search_value}%",))
         elif(filter_type == "Source"):
-            self.cursor.execute("SELECT * FROM iocs WHERE source LIKE ?", (f"{search_value}",))
+            self.cursor.execute("SELECT * FROM iocs WHERE source LIKE ?", (f"%{search_value}%",))
 
         return self.cursor.fetchall()
     
