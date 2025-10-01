@@ -138,7 +138,6 @@ def __get_db_ioc_by_filter(value=None, filter_type="Value"):
         else:
             logger.print_log(f"[WARNING] Zero IOC retrieved. Creating an empty IOC to allow table generation.")
     except Exception as e:
-        logger.print_log(f"[ERROR] Exception while trying to get the IOC from the internal DB filtered for [{value}]. Exception: {e}")
         logger.print_log(f"[ERROR] Error while trying to get the IOC from the internal DB filtered for [{value}]. Creating an empty IOC to allow table generation.")
 
     ioc = {
@@ -177,10 +176,10 @@ def __get_s1_ioc_by_value(value):
             return res_data
         else:
             logger.print_log(f"[INFO] IOC [{value}] Not found. Returning None.")
-            return None
+            return []
     else:
         logger.print_log(f"[ERROR] Error while trying to donwload the IOC list. Received status code [{res.status_code}]. Returning None.")    
-        return None
+        return []
 
 def __get_s1_ioc_by_name(name):
     headers = {'Authorization': f'ApiToken {config.s1_token}'}   
@@ -202,10 +201,10 @@ def __get_s1_ioc_by_name(name):
             return res_data
         else:
             logger.print_log(f"[INFO] Name [{name}] Not found. Returning None.")
-            return None
+            return []
     else:
         logger.print_log(f"[ERROR] Error while trying to donwload the IOC list. Received status code [{res.status_code}]. Returning None.")    
-        return None
+        return []
     
 def __get_s1_ioc_by_description(description):
     headers = {'Authorization': f'ApiToken {config.s1_token}'}   
@@ -227,10 +226,10 @@ def __get_s1_ioc_by_description(description):
             return res_data
         else:
             logger.print_log(f"[INFO] Description [{description}] Not found. Returning None.")
-            return None
+            return []
     else:
         logger.print_log(f"[ERROR] Error while trying to donwload the IOC list. Received status code [{res.status_code}]. Returning None.")    
-        return None
+        return []
     
 def __get_s1_ioc_by_creator(creator):
     headers = {'Authorization': f'ApiToken {config.s1_token}'}   
@@ -252,10 +251,10 @@ def __get_s1_ioc_by_creator(creator):
             return res_data
         else:
             logger.print_log(f"[INFO] Creator [{creator}] Not found. Returning None.")
-            return None
+            return []
     else:
         logger.print_log(f"[ERROR] Error while trying to donwload the IOC list. Received status code [{res.status_code}]. Returning None.")    
-        return None
+        return []
 
 def __get_s1_ioc_by_source(source):
     headers = {'Authorization': f'ApiToken {config.s1_token}'}   
@@ -277,10 +276,10 @@ def __get_s1_ioc_by_source(source):
             return res_data
         else:
             logger.print_log(f"[INFO] Source [{source}] Not found. Returning None.")
-            return None
+            return []
     else:
         logger.print_log(f"[ERROR] Error while trying to donwload the IOC list. Received status code [{res.status_code}]. Returning None.")    
-        return None
+        return []
 
 def __delete_s1_ioc_by_value(value):
     headers = {'Authorization': f'ApiToken {config.s1_token}'}   
