@@ -270,7 +270,7 @@ class UploaderAppWindow(ctk.CTkToplevel):
                         if self._check_ioc_presence(ioc_value):
                             # True means that the IOC is new or the user want to refresh it
                             self.print_log(f"[INFO] User confirmation received. Ready to upload {label} [{ioc_value}].")
-                            result = upload_ioc_to_s1(ioc_value, ioc_type, retention_days, self.title_field.get(), self.description_field.get())
+                            result = upload_ioc_to_s1(ioc_value, ioc_type, int(retention_days), self.title_field.get(), self.description_field.get())
 
                             if result != None:
                                 if result.status_code == 200:
