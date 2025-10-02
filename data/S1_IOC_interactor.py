@@ -94,6 +94,7 @@ def __get_db_ioc_by_filter(value=None, filter_type="Value"):
     logger.print_log(f"[INFO] Sending the get request to the internal DB filtered for [{value}], filter type set to [{filter_type}].")
     ioc_list = []
     try:
+        online_search = []
         ioc_list = IOC_DB.fetch_filtered(value, filter_type)
         if(len(ioc_list) > 0):
             logger.print_log(f"[SUCCESS] IOC retrieved from the database. {len(ioc_list)} IOCs Found")
@@ -138,6 +139,7 @@ def __get_db_ioc_by_filter(value=None, filter_type="Value"):
         else:
             logger.print_log(f"[WARNING] Zero IOC retrieved. Creating an empty IOC to allow table generation.")
     except Exception as e:
+        logger.print_log(e)
         logger.print_log(f"[ERROR] Error while trying to get the IOC from the internal DB filtered for [{value}]. Creating an empty IOC to allow table generation.")
 
     ioc = {
