@@ -50,7 +50,7 @@ class ItemWindow(ctk.CTkToplevel):
         self.wait_window()
 
     def _delete_ioc(self, data):
-        data = json.loads(data)
+        data = json.loads(data)[0]
         logger.print_log(f"[INFO] User want to delete IOC with value: [{data['value']}]. Asking for confirmation.")
 
         user_choice = YesNoDialogBox(self, title="Are you sure?", message=f"Do you want to delete the IOC with value: [{data['value']}] from SentinelOne?")
