@@ -70,18 +70,18 @@ class ItemWindow(ctk.CTkToplevel):
             logger.print_log(f"[INFO] User don't want to delete IOC with value: [{data['value']}]. Moving on.")
 
 class ViewerTableFrame(tk.Frame):
-    def __init__(self, parent, data):
+    def __init__(self, parent, data, disabled_indicators):
         super().__init__(parent)
         self.tree = None
         self.sort_state = {}   # Track sort order for each column
         self.original_headings = {}  # Keep original column names
-        self.build_table(data)
+        self.build_table(data, disabled_indicators)
 
         # Let this frame expand with its parent
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
 
-    def build_table(self, data):
+    def build_table(self, data, disabled_indicators=[]):
         logger.print_log("[INFO] Building the IOC table.")
 
         # Create Treeview
@@ -100,12 +100,21 @@ class ViewerTableFrame(tk.Frame):
             self.tree.heading(col, text=heading, command=lambda c=col: self.sort_column(c, False))
             self.tree.column(col, anchor=alignment, stretch=stretch, width=width if width else 100)
 
+            self.tree.tag_configure("red", background="#ffcccc")
+            self.tree.tag_configure("normal", background="white")
+
+
         # Insert rows
         for row in data:
             row['creationTime'] = parser.parse(row['creationTime']).strftime("%d/%m/%Y %H:%M:%S") if row.get('creationTime') else ""
             row['updatedAt']    = parser.parse(row['updatedAt']).strftime("%d/%m/%Y %H:%M:%S")    if row.get('updatedAt') else ""
             row['validUntil']   = parser.parse(row['validUntil']).strftime("%d/%m/%Y %H:%M:%S")   if row.get('validUntil') else ""
-            self.tree.insert("", "end", values=list(row.values()))
+            
+            # In case the ioc is inserted as critical, paint the row in red
+            if row['value'] in disabled_indicators:
+                self.tree.insert("", "end", values=list(row.values()), tags=("red",))
+            else:
+                self.tree.insert("", "end", values=list(row.values()), tags=("normal",))
 
         # Create scrollbars
         vsb = ttk.Scrollbar(self, orient="vertical", command=self.tree.yview)

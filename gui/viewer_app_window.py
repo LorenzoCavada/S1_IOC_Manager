@@ -7,7 +7,7 @@ from gui.viewer_table_frame import ViewerTableFrame
 from gui.uploader_app_window import UploaderAppWindow
 from gui.custom_messagebox import ErrorDialogBox, InfoDialogBox
 
-from data import get_s1_ioc, get_s1_filtered_ioc
+from data import get_s1_ioc, get_s1_filtered_ioc, get_s1_disabled_ioc
 
 from utils.log_handler import logger 
 
@@ -55,7 +55,7 @@ class ViewerAppWindow(ctk.CTk):
 
         # --- Table Area ---
         logger.print_log("[INFO] Preparing the first IOC table.")
-        self.table = ViewerTableFrame(self, get_s1_ioc())
+        self.table = ViewerTableFrame(self, get_s1_ioc(), get_s1_disabled_ioc())
         self.table.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
 
         # --- Bottom Button Area ---
@@ -111,7 +111,7 @@ class ViewerAppWindow(ctk.CTk):
             self.table.destroy()
 
         # Create and place new table using grid
-        self.table = ViewerTableFrame(self, get_s1_ioc())
+        self.table = ViewerTableFrame(self, get_s1_ioc(), get_s1_disabled_ioc())
         self.table.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
 
     def search_ioc(self):
@@ -126,7 +126,7 @@ class ViewerAppWindow(ctk.CTk):
         else:
             if self.table:
                 self.table.destroy()
-            self.table = ViewerTableFrame(self, get_s1_filtered_ioc(search_value, search_type))
+            self.table = ViewerTableFrame(self, get_s1_filtered_ioc(search_value, search_type), get_s1_disabled_ioc())
             self.table.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
 
     

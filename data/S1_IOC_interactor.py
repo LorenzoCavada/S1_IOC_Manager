@@ -258,6 +258,41 @@ def __get_s1_ioc_by_creator(creator):
         logger.print_log(f"[ERROR] Error while trying to donwload the IOC list. Received status code [{res.status_code}]. Returning None.")    
         return []
 
+def __get_s1_disabled_ioc():
+    headers = {'Authorization': f'ApiToken {config.s1_token}'}   
+    logger.print_log(f"[INFO] Sending the get request for user [{config.s1_account_id}] to SentinelOne to get disabled IoCs.")
+
+    body = {
+        "accountIds": "[{config.s1_account_id}]",
+    }
+
+    try:
+        res = requests.get(f"{config.s1_api}threat-intelligence/user-config", headers=headers, json=body)
+    except:
+        logger.print_log(f"[ERROR] Exception while trying to donwload the IOC list.")    
+
+    if res.status_code == 200:
+        res_data = (res.json())["data"]
+
+        disabled_ioc = []
+        for data in res_data:
+            for ioc in data["excludeTii"]:
+                disabled_ioc.append(ioc)
+
+        logger.print_log(f"[SUCCESS] Status code [200] received for user [{config.s1_account_id}].")
+
+        if(len(disabled_ioc) == 1):
+            return disabled_ioc
+        elif(len(disabled_ioc) > 1):
+            logger.print_log(f"[SUCCESS] Found multiple entry for user [{config.s1_account_id}]. Received [{len(disabled_ioc)}] IOCs.")
+            return disabled_ioc
+        else:
+            logger.print_log(f"[INFO] User [{config.s1_account_id}] Not found. Returning None.")
+            return []
+    else:
+        logger.print_log(f"[ERROR] Error while trying to donwload the IOC list. Received status code [{res.status_code}]. Returning None.")    
+        return []
+
 def __get_s1_ioc_by_source(source):
     headers = {'Authorization': f'ApiToken {config.s1_token}'}   
     logger.print_log(f"[INFO] Sending the get request for source [{source}] to SentinelOne.")
@@ -362,3 +397,6 @@ def delete_s1_ioc_by_value(value):
 
 def upload_ioc_to_s1(ioc_value, ioc_type, retention_days, name, description):
     return __post_s1_upload_ioc(ioc_value, ioc_type, retention_days, name, description)
+
+def get_s1_disabled_ioc():
+    return __get_s1_disabled_ioc()
