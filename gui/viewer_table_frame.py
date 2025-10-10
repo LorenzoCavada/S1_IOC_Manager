@@ -7,9 +7,9 @@ import json
 
 from utils.log_handler import logger
 
-from gui.custom_messagebox import YesNoDialogBox, InfoDialogBox, ErrorDialogBox
+from gui.custom_messagebox import YesNoDialogBox, InfoDialogBox, ErrorDialogBox, YesNoTextDialogBox
 
-from data import get_s1_ioc_by_value, delete_s1_ioc_by_value
+from data import get_s1_ioc_by_value, delete_s1_ioc_by_value, disable_s1_ioc_by_value, enable_s1_ioc_by_value
 
 colums_settings = {
     'num': {'allignment': tk.CENTER, 'size': 60},
@@ -25,7 +25,7 @@ colums_settings = {
 }
 
 class ItemWindow(ctk.CTkToplevel):
-    def __init__(self, parent, value, data):
+    def __init__(self, parent, value, data, ioc_disabled):
         super().__init__(parent)
         self.title(f"Item #{value[0]} [{value[4]}]")
         self.geometry(f"500x450")
@@ -42,12 +42,39 @@ class ItemWindow(ctk.CTkToplevel):
         self.json_box.insert("end", text=f"{data}")
         self.json_box.configure(state="disabled")
 
-        self.get_ioc_button = ctk.CTkButton(self, text="Delete IOC 🗑️", fg_color="red", hover_color="red3", command=lambda: (self._delete_ioc(data)))
-        self.get_ioc_button.pack(side=ctk.BOTTOM, pady=10)
+        self.delete_ioc_button = ctk.CTkButton(self, text="Delete IOC 🗑️", fg_color="red", hover_color="red3", command=lambda: (self._delete_ioc(data)))
+        self.delete_ioc_button.pack(side=ctk.BOTTOM, pady=10)
+
+        if not ioc_disabled:
+            self.disable_ioc_button = ctk.CTkButton(self, text="Disable IOC 🚫", fg_color="orange", hover_color="orange3", command=lambda: (self._disable_ioc(data)))
+            self.disable_ioc_button.pack(side=ctk.BOTTOM, pady=10)
+        else:
+            self.enable_ioc_button = ctk.CTkButton(self, text="Enable IOC ✅", fg_color="green", hover_color="green3", command=lambda: (self._enable_ioc(data)))
+            self.enable_ioc_button.pack(side=ctk.BOTTOM, pady=10)
 
 
     def show(self):
         self.wait_window()
+
+    def _enable_ioc(self, data):
+        data = json.loads(data)[0]
+        logger.print_log(f"[INFO] User want to enable IOC with value: [{data['value']}]. Asking for confirmation.")
+
+        user_choice = YesNoDialogBox(self, title="Are you sure?", message=f"Do you want to enable the IOC with value: [{data['value']}] from SentinelOne?")
+        user_choice = user_choice.show()
+
+        if user_choice:
+            logger.print_log(f"[INFO] User want to enable IOC with value: [{data['value']}].")
+
+            result = enable_s1_ioc_by_value(data['value'])
+
+            if result:
+                InfoDialogBox(self, title = "IOC enabled", message=f"The IOC [{data['value']}] has been successfully enabled.\nRemember to refresh the table!").show()
+                self.destroy()
+            else:
+                ErrorDialogBox(self, title="IOC enabled", message=f"The IOC [{data['value']}] has NOT been successfully enabled.").show()
+        else:
+            logger.print_log(f"[INFO] User don't want to enable IOC with value: [{data['value']}]. Moving on.")
 
     def _delete_ioc(self, data):
         data = json.loads(data)[0]
@@ -68,6 +95,26 @@ class ItemWindow(ctk.CTkToplevel):
                 ErrorDialogBox(self, title="IOC deleted", message=f"The IOC [{data['value']}] has NOT been successfully deleted.").show()
         else:
             logger.print_log(f"[INFO] User don't want to delete IOC with value: [{data['value']}]. Moving on.")
+    
+    def _disable_ioc(self, data):
+        data = json.loads(data)[0]
+        logger.print_log(f"[INFO] User want to disable IOC with value: [{data['value']}]. Asking for confirmation.")
+
+        dlg = YesNoTextDialogBox(self, title="Are you sure?", message=f"Do you want to disable the IOC with value: [{data['value']}] from SentinelOne?")
+        user_choice, description = dlg.show()
+
+        if user_choice:
+            logger.print_log(f"[INFO] User want to disable IOC with value: [{data['value']}].")
+
+            result = disable_s1_ioc_by_value(data['value'])
+
+            if result:
+                InfoDialogBox(self, title = "IOC disabled", message=f"The IOC [{data['value']}] has been successfully disabled.\nRemember to refresh the table!").show()
+                self.destroy()
+            else:
+                ErrorDialogBox(self, title="IOC disabled", message=f"The IOC [{data['value']}] has NOT been successfully disabled.").show()
+        else:
+            logger.print_log(f"[INFO] User don't want to disabled IOC with value: [{data['value']}]. Moving on.")
 
 class ViewerTableFrame(tk.Frame):
     def __init__(self, parent, data, disabled_indicators):
@@ -176,12 +223,19 @@ class ViewerTableFrame(tk.Frame):
         item_id = self.tree.identify_row(event.y)
         if item_id:
             value = self.tree.item(item_id, "values")
+
+            # Check if the row is tagged as disabled
+            tags = self.tree.item(item_id, "tags")
+            ioc_disabled = False
+            if "red" in tags:
+                ioc_disabled = True 
+            
             logger.print_log(f"[INFO] Double click on item [{value[0]}] detected. Showing detailed pop up window.")
 
             ioc_data = get_s1_ioc_by_value(value[4])            
             if ioc_data is not None:
                 ioc_data = json.dumps(ioc_data, indent=2)
-                item_window = ItemWindow(self, value=value, data=ioc_data)
+                item_window = ItemWindow(self, value=value, data=ioc_data, ioc_disabled=ioc_disabled)
                 item_window.show()
             else:
                 logger.print_log(f"[WARNING] IOC at row number [{value[0]}] Not found on the console, maybe a table refresh is needed.")

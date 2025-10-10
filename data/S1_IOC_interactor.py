@@ -344,6 +344,72 @@ def __delete_s1_ioc_by_value(value):
     else:
         logger.print_log(f"[ERROR] Error while trying to delete the IOC [{value}]. Received status code [{res.status_code}].")    
         return False
+    
+def __disable_s1_ioc_by_value(value, description=""):
+    headers = {'Authorization': f'ApiToken {config.s1_token}'}   
+    logger.print_log(f"[INFO] Sending the disable request for value [{value}] to SentinelOne.")
+
+    body = {
+        "description": "{description}",
+	    "disableRh": "",
+		"disableThreat": "",
+		"enableXdrMatching": "",
+		"excludeTii": f"[{value}]",
+		"scopeId": "{config.s1_account_id}",
+		"scopeLevel": "account",
+		"threatExcludeFields": "",
+		"threatMinScore": ""
+    }
+    
+    try:
+        res = requests.delete(f"{config.s1_api}threat-intelligence/user-config", headers=headers, json=body)
+    except:
+        logger.print_log(f"[ERROR] Exception while trying to disable the IOC with value [{value}].")   
+        return False
+         
+    if res.status_code == 200:
+        logger.print_log(f"[SUCCESS] Status code [200] received for disabling IOC [{value}].")
+        res_data = (res.json())["data"]
+        logger.print_log(f"[INFO] IOC [{value}] has been disabled. Number of affected element: {[{res_data['affected']}]}.")
+
+        return True
+
+    else:
+        logger.print_log(f"[ERROR] Error while trying to delete the IOC [{value}]. Received status code [{res.status_code}].")    
+        return False
+
+def __enable_s1_ioc_by_value(value):
+    headers = {'Authorization': f'ApiToken {config.s1_token}'}   
+    logger.print_log(f"[INFO] Sending the enable request for value [{value}] to SentinelOne.")
+
+    body = {
+	    "disableRh": "",
+		"disableThreat": "",
+		"enableXdrMatching": "",
+		"excludeTii": f"[{value}]",
+		"scopeId": "{config.s1_account_id}",
+		"scopeLevel": "account",
+		"threatExcludeFields": "",
+		"threatMinScore": ""
+    }
+    
+    try:
+        res = requests.delete(f"{config.s1_api}threat-intelligence/user-config", headers=headers, json=body)
+    except:
+        logger.print_log(f"[ERROR] Exception while trying to enable the IOC with value [{value}].")   
+        return False
+         
+    if res.status_code == 200:
+        logger.print_log(f"[SUCCESS] Status code [200] received for enabling IOC [{value}].")
+        res_data = (res.json())["data"]
+        logger.print_log(f"[INFO] IOC [{value}] has been enabled. Number of affected element: {[{res_data['affected']}]}.")
+
+        return True
+
+    else:
+        logger.print_log(f"[ERROR] Error while trying to enabling the IOC [{value}]. Received status code [{res.status_code}].")    
+        return False
+
 
 def __post_s1_upload_ioc(ioc_value, ioc_type, retention_days, name, description):
     headers = {'Authorization': f'ApiToken {config.s1_token}'}
@@ -394,6 +460,12 @@ def get_s1_ioc_by_value(value):
 
 def delete_s1_ioc_by_value(value):
     return __delete_s1_ioc_by_value(value)
+
+def enable_s1_ioc_by_value(value):
+    return __enable_s1_ioc_by_value(value)
+
+def disable_s1_ioc_by_value(value, description=""):
+    return __disable_s1_ioc_by_value(value, description)
 
 def upload_ioc_to_s1(ioc_value, ioc_type, retention_days, name, description):
     return __post_s1_upload_ioc(ioc_value, ioc_type, retention_days, name, description)

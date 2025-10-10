@@ -52,6 +52,7 @@ class ViewerAppWindow(ctk.CTk):
 
         self.search_button = ctk.CTkButton(right_frame, text="Search 🔍", width=80, command=self.search_ioc)
         self.search_button.grid(row=0, column=2, padx=5)
+        self.bind("<Return>", lambda event: self.search_ioc())
 
         # --- Table Area ---
         logger.print_log("[INFO] Preparing the first IOC table.")

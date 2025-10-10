@@ -40,6 +40,67 @@ class YesNoDialogBox(ctk.CTkToplevel):
         self.wait_window()
         return self.choice
 
+class YesNoTextDialogBox(ctk.CTkToplevel):
+    def __init__(self, parent, title, message, field_label="Please provide a description (min 5 characters):"):
+        super().__init__(parent)
+        self.title(title)
+        self.resizable(False, False)
+
+        # Safe geometry
+        width = max(350, len(message)*7 + 40)
+        height = 200
+        self.geometry(str(width) + "x" + str(height))
+
+        self.grab_set()  # modal
+
+        self.choice = None
+        self.description = ""
+
+        # Message
+        self.label = ctk.CTkLabel(self, text=message, justify="center", wraplength=width-40)
+        self.label.pack(pady=(20, 10), padx=10)
+
+        # Entry
+        self.entry_label = ctk.CTkLabel(self, text=field_label, anchor="w")
+        self.entry_label.pack(padx=20, anchor="w")
+
+        self.entry_var = tk.StringVar()
+        self.entry = ctk.CTkEntry(self, textvariable=self.entry_var)
+        self.entry.pack(pady=(0, 10), padx=20, fill="x")
+        self.entry.focus()
+
+        # Buttons
+        btn_frame = ctk.CTkFrame(self, fg_color="transparent")
+        btn_frame.pack(pady=(0, 20))
+
+        self.yes_btn = ctk.CTkButton(btn_frame, text="Yes", state="disabled", command=self._on_yes)
+        self.yes_btn.pack(side="left", padx=10)
+        self.no_btn = ctk.CTkButton(btn_frame, text="No", command=self._on_no)
+        self.no_btn.pack(side="right", padx=10)
+
+        # Bindings
+        self.entry_var.trace_add("write", self._on_text_change)
+        self.bind("<Return>", lambda e: self._on_yes())
+        self.bind("<Escape>", lambda e: self._on_no())
+        self.protocol("WM_DELETE_WINDOW", self._on_no)
+
+    def _on_text_change(self, *args):
+        self.yes_btn.configure(state="normal" if len(self.entry_var.get().strip()) >= 5 else "disabled")
+
+    def _on_yes(self):
+        self.choice = True
+        self.description = self.entry_var.get().strip()
+        self.destroy()
+
+    def _on_no(self):
+        self.choice = False
+        self.description = self.entry_var.get().strip()
+        self.destroy()
+
+    def show(self):
+        self.wait_window()
+        return self.choice, self.description
+
 class UpdateIOCDialogBox(ctk.CTkToplevel):
     def __init__(self, parent, data):
         super().__init__(parent)
