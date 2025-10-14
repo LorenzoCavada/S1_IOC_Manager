@@ -41,17 +41,20 @@ class ItemWindow(ctk.CTkToplevel):
         self.json_box.configure(state="normal") # Temporarily enable
         self.json_box.insert("end", text=f"{data}")
         self.json_box.configure(state="disabled")
+        
+        # Frame for buttons (bottom row)
+        button_frame = ctk.CTkFrame(self, fg_color="transparent")
+        button_frame.pack(side=tk.BOTTOM, pady=10)
 
-        self.delete_ioc_button = ctk.CTkButton(self, text="Delete IOC 🗑️", fg_color="red", hover_color="red3", command=lambda: (self._delete_ioc(data)))
-        self.delete_ioc_button.pack(side=ctk.BOTTOM, pady=10)
+        self.delete_ioc_button = ctk.CTkButton(button_frame, text="Delete IOC 🗑️", fg_color="red", hover_color="red3", command=lambda: (self._delete_ioc(data)))
+        self.delete_ioc_button.pack(side=tk.LEFT, padx=10)
 
         if not ioc_disabled:
-            self.disable_ioc_button = ctk.CTkButton(self, text="Disable IOC 🚫", fg_color="orange", hover_color="orange3", command=lambda: (self._disable_ioc(data)))
-            self.disable_ioc_button.pack(side=ctk.BOTTOM, pady=10)
+            self.disable_ioc_button = ctk.CTkButton(button_frame, text="Disable IOC 🚫", fg_color="orange", hover_color="orange3", command=lambda: (self._disable_ioc(data)))
+            self.disable_ioc_button.pack(side=tk.LEFT, padx=10)
         else:
-            self.enable_ioc_button = ctk.CTkButton(self, text="Enable IOC ✅", fg_color="green", hover_color="green3", command=lambda: (self._enable_ioc(data)))
-            self.enable_ioc_button.pack(side=ctk.BOTTOM, pady=10)
-
+            self.enable_ioc_button = ctk.CTkButton(button_frame, text="Enable IOC ✅", fg_color="green", hover_color="green3", command=lambda: (self._enable_ioc(data)))
+            self.enable_ioc_button.pack(side=tk.LEFT, padx=10)
 
     def show(self):
         self.wait_window()
