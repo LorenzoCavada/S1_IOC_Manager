@@ -345,32 +345,33 @@ def __delete_s1_ioc_by_value(value):
         logger.print_log(f"[ERROR] Error while trying to delete the IOC [{value}]. Received status code [{res.status_code}].")    
         return False
     
-def __disable_s1_ioc_by_value(value, description=""):
+def __enable_s1_ioc_by_value(value, description="[ALLITUDE] IOC Exclusion List"):
     headers = {'Authorization': f'ApiToken {config.s1_token}'}   
     logger.print_log(f"[INFO] Sending the disable request for value [{value}] to SentinelOne.")
 
+    iocs = __get_s1_disabled_ioc()
+    if value in iocs:
+        iocs.remove(value)
+
     body = {
-        "description": "{description}",
-	    "disableRh": "",
-		"disableThreat": "",
-		"enableXdrMatching": "",
-		"excludeTii": f"[{value}]",
-		"scopeId": "{config.s1_account_id}",
-		"scopeLevel": "account",
-		"threatExcludeFields": "",
-		"threatMinScore": ""
+        "data": {
+            "description": f"{description}",
+		    "excludeTii": iocs,
+        },
+        "filter": {
+            "accountIds": [f"{config.s1_account_id}"]
+        }
     }
     
     try:
-        res = requests.delete(f"{config.s1_api}threat-intelligence/user-config", headers=headers, json=body)
+        res = requests.post(f"{config.s1_api}threat-intelligence/user-config", headers=headers, json=body)
     except:
         logger.print_log(f"[ERROR] Exception while trying to disable the IOC with value [{value}].")   
         return False
          
     if res.status_code == 200:
         logger.print_log(f"[SUCCESS] Status code [200] received for disabling IOC [{value}].")
-        res_data = (res.json())["data"]
-        logger.print_log(f"[INFO] IOC [{value}] has been disabled. Number of affected element: {[{res_data['affected']}]}.")
+        logger.print_log(f"[INFO] IOC [{value}] has been disabled.")
 
         return True
 
@@ -378,31 +379,32 @@ def __disable_s1_ioc_by_value(value, description=""):
         logger.print_log(f"[ERROR] Error while trying to delete the IOC [{value}]. Received status code [{res.status_code}].")    
         return False
 
-def __enable_s1_ioc_by_value(value):
+def __disable_s1_ioc_by_value(value, description="[ALLITUDE] IOC Exclusion List"):
     headers = {'Authorization': f'ApiToken {config.s1_token}'}   
     logger.print_log(f"[INFO] Sending the enable request for value [{value}] to SentinelOne.")
 
+    iocs = __get_s1_disabled_ioc()
+    iocs.append(value)
+
     body = {
-	    "disableRh": "",
-		"disableThreat": "",
-		"enableXdrMatching": "",
-		"excludeTii": f"[{value}]",
-		"scopeId": "{config.s1_account_id}",
-		"scopeLevel": "account",
-		"threatExcludeFields": "",
-		"threatMinScore": ""
+        "data": {
+            "description": f"{description}",
+		    "excludeTii": iocs,
+        },
+        "filter": {
+            "accountIds": [f"{config.s1_account_id}"]
+        }
     }
     
     try:
-        res = requests.delete(f"{config.s1_api}threat-intelligence/user-config", headers=headers, json=body)
+        res = requests.post(f"{config.s1_api}threat-intelligence/user-config", headers=headers, json=body)
     except:
         logger.print_log(f"[ERROR] Exception while trying to enable the IOC with value [{value}].")   
         return False
          
     if res.status_code == 200:
         logger.print_log(f"[SUCCESS] Status code [200] received for enabling IOC [{value}].")
-        res_data = (res.json())["data"]
-        logger.print_log(f"[INFO] IOC [{value}] has been enabled. Number of affected element: {[{res_data['affected']}]}.")
+        logger.print_log(f"[INFO] IOC [{value}] has been enabled.")
 
         return True
 
@@ -461,8 +463,8 @@ def get_s1_ioc_by_value(value):
 def delete_s1_ioc_by_value(value):
     return __delete_s1_ioc_by_value(value)
 
-def enable_s1_ioc_by_value(value):
-    return __enable_s1_ioc_by_value(value)
+def enable_s1_ioc_by_value(value, description=""):
+    return __enable_s1_ioc_by_value(value, description)
 
 def disable_s1_ioc_by_value(value, description=""):
     return __disable_s1_ioc_by_value(value, description)

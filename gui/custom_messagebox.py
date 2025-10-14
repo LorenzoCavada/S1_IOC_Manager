@@ -84,6 +84,10 @@ class YesNoTextDialogBox(ctk.CTkToplevel):
         self.bind("<Escape>", lambda e: self._on_no())
         self.protocol("WM_DELETE_WINDOW", self._on_no)
 
+        # Setup the default text
+        self.entry_var.set("[ALLITUDE] IOC Exclusion List")
+        self.yes_btn.configure(state="normal")  # Enable the button since default text is >5 chars
+
     def _on_text_change(self, *args):
         self.yes_btn.configure(state="normal" if len(self.entry_var.get().strip()) >= 5 else "disabled")
 

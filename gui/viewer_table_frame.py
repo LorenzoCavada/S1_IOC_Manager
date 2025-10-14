@@ -66,7 +66,7 @@ class ItemWindow(ctk.CTkToplevel):
         if user_choice:
             logger.print_log(f"[INFO] User want to enable IOC with value: [{data['value']}].")
 
-            result = enable_s1_ioc_by_value(data['value'])
+            result = enable_s1_ioc_by_value(data['value'], "[ALLITUDE] IOC Exclusion List")
 
             if result:
                 InfoDialogBox(self, title = "IOC enabled", message=f"The IOC [{data['value']}] has been successfully enabled.\nRemember to refresh the table!").show()
@@ -106,7 +106,7 @@ class ItemWindow(ctk.CTkToplevel):
         if user_choice:
             logger.print_log(f"[INFO] User want to disable IOC with value: [{data['value']}].")
 
-            result = disable_s1_ioc_by_value(data['value'])
+            result = disable_s1_ioc_by_value(data['value'], description)
 
             if result:
                 InfoDialogBox(self, title = "IOC disabled", message=f"The IOC [{data['value']}] has been successfully disabled.\nRemember to refresh the table!").show()
