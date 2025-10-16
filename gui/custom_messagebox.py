@@ -51,7 +51,7 @@ class YesNoTextDialogBox(ctk.CTkToplevel):
         height = 200
         self.geometry(str(width) + "x" + str(height))
 
-        self.grab_set()  # modal
+        self.after(10, self.grab_set)  # small delay to ensure window is mapped  # modal
 
         self.choice = None
         self.description = ""
