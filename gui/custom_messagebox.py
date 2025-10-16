@@ -56,7 +56,7 @@ class YesNoTextDialogBox(ctk.CTkToplevel):
         self.choice = None
         self.description = ""
 
-        # Message
+        # Message to be shown
         self.label = ctk.CTkLabel(self, text=message, justify="center", wraplength=width-40)
         self.label.pack(pady=(20, 10), padx=10)
 
